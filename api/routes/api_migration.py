@@ -7,6 +7,7 @@ import uuid
 import json
 
 from core.call_graph_builder import CallGraphBuilder
+from core.business_logic_enhancer import BusinessLogicEnhancer
 from models.schemas import (
     MigrationRequest, MigrationResponse, MigrationStatus
 )
@@ -87,19 +88,42 @@ async def perform_migration(
         migration_jobs[migration_id].status = MigrationStatus.ANALYZING
         migration_jobs[migration_id].message = "Building call graph..."
         
-        # Build call graph
+        # Build call graph with schema metadata
         builder = CallGraphBuilder()
-        call_graph = builder.build_call_graph(service_name, api_name)
+        call_graph = builder.build_call_graph(
+            service_name=service_name,
+            api_name=api_name,
+            include_schema=True  # Include Hibernate mappings and enums
+        )
         
-        # Save call graph to file
+        # Enhance with business logic and filter metadata
+        migration_jobs[migration_id].message = "Enhancing with business logic and filtering metadata..."
+        enhancer = BusinessLogicEnhancer()
+        enhanced_graph = enhancer.enhance_call_graph(
+            call_graph.model_dump(),
+            include_all=True,
+            filter_metadata=True  # ✅ Filter to only relevant entities/enums
+        )
+        
+        # Save enhanced call graph to file
         output_file = CALL_GRAPHS_DIR / f"{migration_id}.json"
         with open(output_file, 'w') as f:
-            json.dump(call_graph.model_dump(), f, indent=2)
+            json.dump(enhanced_graph, f, indent=2)
         
-        # Update response with call graph
-        migration_jobs[migration_id].call_graph = call_graph
+        # Update response with enhanced call graph
+        migration_jobs[migration_id].call_graph = enhanced_graph
         migration_jobs[migration_id].status = MigrationStatus.COMPLETED
-        migration_jobs[migration_id].message = f"Call graph generated successfully with {len(call_graph.nodes)} nodes"
+        
+        # Get metadata stats for message
+        metadata = enhanced_graph.get('metadata', {})
+        entity_count = len(metadata.get('entities', {}))
+        enum_count = len(metadata.get('enums', {}))
+        helper_count = len(metadata.get('helper_methods', {}))
+        
+        migration_jobs[migration_id].message = (
+            f"Call graph generated with {len(enhanced_graph.get('nodes', []))} nodes. "
+            f"Metadata: {entity_count} entities, {enum_count} enums, {helper_count} helpers"
+        )
         
     except FileNotFoundError as e:
         migration_jobs[migration_id].status = MigrationStatus.FAILED

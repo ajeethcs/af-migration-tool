@@ -28,13 +28,22 @@ Controller (SOAP) → Service Interface → ServiceImpl → DaoFacade → DAO �
 - Generates a graph representation with nodes and edges
 - Each node represents a method with its source code
 
-### 3. Code Analysis
+### 3. **Schema Metadata Extraction** 🆕
+- **Automatically extracts Hibernate entity mappings** from .hbm.xml files
+- **Extracts Java enum definitions** with constant values
+- **Intelligent metadata filtering** - sends only entities/enums used by the API (97% reduction!)
+- Provides complete database schema context for LLM conversion
+- Maps Java field names → Database column names
+- Maps entity names → Table names
+- See [SCHEMA_EXTRACTION.md](SCHEMA_EXTRACTION.md) and [METADATA_FILTERING_GUIDE.md](METADATA_FILTERING_GUIDE.md) for details
+
+### 4. Code Analysis
 - Parses Java source files
 - Extracts method signatures, parameters, and return types
 - Identifies dependencies and method calls
 - Analyzes imports and class structure
 
-### 4. Migration Support
+### 5. Migration Support
 - API-by-API migration approach
 - Generates JSON representation of call graphs
 - Prepares data for UI visualization

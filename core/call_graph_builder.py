@@ -12,6 +12,7 @@ from config import (
     ALLOFACTOR_SRC, ALLOFACTORSERVICE_SRC
 )
 from core.java_parser import JavaParser
+from core.schema_extractor import extract_metadata
 from models.schemas import (
     CallGraph, MethodNode, CallEdge, NodeType,
     MethodSignature, MethodParameter
@@ -26,55 +27,89 @@ class CallGraphBuilder:
         self.edges: List[CallEdge] = []
         self.method_cache: Dict[str, Dict] = {}
     
-    def build_call_graph(self, service_name: str, api_name: str) -> CallGraph:
-        """Build a complete call graph for an API"""
+    def build_call_graph(self, service_name: str, api_name: str, include_schema: bool = True) -> CallGraph:
+        """
+        Build a complete call graph for an API
+        
+        Args:
+            service_name: Name of the service (e.g., "ClaimService")
+            api_name: Name of the API method (e.g., "getClaims")
+            include_schema: Whether to include database schema metadata
+            
+        Returns:
+            CallGraph object with all nodes and edges
+        """
         self.visited_methods.clear()
-        self.nodes.clear()
-        self.edges.clear()
-        self.method_cache.clear()
+        self.nodes = []
+        self.edges = []
         
-        # Find the entry point (service implementation method)
-        impl_file = SERVICES_IMPL_PATH / f"{service_name}Impl.java"
+        # Find the service implementation
+        service_impl_file = SERVICES_IMPL_PATH / f"{service_name}Impl.java"
         
-        if not impl_file.exists():
-            raise FileNotFoundError(f"Service implementation not found: {impl_file}")
+        if not service_impl_file.exists():
+            raise FileNotFoundError(f"Service implementation not found: {service_impl_file}")
         
-        # Parse the implementation
-        parser = JavaParser(impl_file)
+        # Parse the service implementation
+        parser = JavaParser(service_impl_file)
         methods = parser.get_methods()
         
         # Find the API method
-        entry_method = None
+        api_method = None
         for method in methods:
             if method["name"] == api_name:
-                entry_method = method
+                api_method = method
                 break
         
-        if not entry_method:
-            raise ValueError(f"API method '{api_name}' not found in {service_name}")
+        if not api_method:
+            raise ValueError(f"API method '{api_name}' not found in {service_name}Impl")
         
-        # Create entry node
-        entry_node_id = self._create_node(
-            entry_method,
-            NodeType.SERVICE_IMPL,
-            str(impl_file),
-            parser.get_fully_qualified_name()
-        )
+        # Start building the call graph from the entry point
+        entry_node_id = self._process_called_method({
+            "method_info": api_method,
+            "parser": parser,
+            "node_type": NodeType.SERVICE_IMPL
+        })
         
-        # Recursively build the call graph
-        self._trace_method_calls(entry_method, entry_node_id, parser)
+        # Build metadata
+        metadata = {
+            "total_nodes": len(self.nodes),
+            "total_edges": len(self.edges)
+        }
         
-        return CallGraph(
+        # Add schema metadata if requested
+        if include_schema:
+            try:
+                schema_metadata = self._extract_schema_metadata()
+                metadata.update(schema_metadata)
+            except Exception as e:
+                print(f"Warning: Could not extract schema metadata: {e}")
+        
+        # Create the call graph
+        call_graph = CallGraph(
             api_name=api_name,
             service_name=service_name,
             entry_point=entry_node_id,
             nodes=self.nodes,
             edges=self.edges,
-            metadata={
-                "total_nodes": len(self.nodes),
-                "total_edges": len(self.edges)
-            }
+            metadata=metadata
         )
+        
+        return call_graph
+    
+    def _extract_schema_metadata(self) -> Dict:
+        """Extract database schema and Hibernate mappings"""
+        hibernate_maps = DAO_PATH / "hibernate" / "maps"
+        
+        if not hibernate_maps.exists():
+            print(f"Warning: Hibernate maps directory not found: {hibernate_maps}")
+            return {}
+        
+        metadata = extract_metadata(
+            hibernate_maps_path=hibernate_maps,
+            java_source_paths=[ALLOFACTOR_SRC, ALLOFACTORSERVICE_SRC]
+        )
+        
+        return metadata
     
     def _create_node(
         self,
