@@ -1,0 +1,285 @@
+{
+  "api_name": "getClaims",
+  "service_name": "ClaimService",
+  "entry_point": "com.iris.allofactor.services.impl.ClaimServiceImpl.getClaims",
+  "nodes": [
+    {
+      "id": "service_impl_1",
+      "name": "getClaims",
+      "class_name": "ClaimServiceImpl",
+      "node_type": "service_impl",
+      "signature": {
+        "name": "getClaims",
+        "return_type": "GetClaimsOutPut"
+      },
+      "source_code": "\tpublic GetClaimsOutPut getClaims(UserSession userSession) {\n\t\treturn helper.populate(dao.get());\n\t}",
+      "file_path": "/path/to/ClaimServiceImpl.java",
+      "line_number": 100,
+      "dependencies": [
+        "facade_1",
+        "helper_1"
+      ],
+      "logic_annotations": {
+        "complexity_score": 3,
+        "patterns": [
+          {
+            "type": "helper_method_calls",
+            "helpers": [
+              "helper1",
+              "helper2",
+              "helper3"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "facade_1",
+      "name": "getMediumClaimBO",
+      "class_name": "DaoFacadeImpl",
+      "node_type": "facade",
+      "signature": {
+        "name": "getMediumClaimBO",
+        "return_type": "MediumClaimBO"
+      },
+      "source_code": "\tpublic MediumClaimBO getMediumClaimBO(ClaimCriteria criteria) {\n\t\treturn this.dao.getMediumClaimBO(criteria);\n\t}",
+      "file_path": "/path/to/DaoFacadeImpl.java",
+      "line_number": 200,
+      "dependencies": [
+        "dao_1"
+      ]
+    },
+    {
+      "id": "dao_1",
+      "name": "getMediumClaimByClaimCriteriaNew",
+      "class_name": "HibernateClaimDao",
+      "node_type": "dao",
+      "signature": {
+        "name": "getMediumClaimByClaimCriteriaNew",
+        "return_type": "MediumClaim[]"
+      },
+      "source_code": "\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n\n\tpublic MediumClaim[] getMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iOffset, int iCount, int iClinicID) {\n\t\tString sQry = \"select mc from MediumClaim mc,VisitDetails vd where mc.C_ID = \"+iClinicID;\n\t\t\n\t\tif(claimCriteria.getBtStatusGroup() != null && claimCriteria.getBtStatusGroup()[0] == Claim_ClaimStatus.CLARIFICATIONOPENED.getClaim_ClaimStatus()) {\n\t\t\tsQry = \"select mc,cm.sDescription FROM MediumClaim mc,VisitDetails vd,Task T,ClinicMaster cm\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getiProvider_Id() != 0) {\n\t\t\tsQry = sQry + \" and vd.iPhysicianId = \"+claimCriteria.getiProvider_Id();\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtTimelyFilingLimit() == Enums.TimilyFilingLimit.Thirty.getTimilyFilingLimit()) {\n\t\t\tsQry = sQry+\" and mc.STATUS in(1,2,4,5,6,12,13)\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getBtClaimHold() == Enums.HoldClaimSearchCriteria.GeneralHoldExclude.getHoldClaimSearchCriteria()) {\n\t\t\tsQry = sQry + \" and mc.btClaimHold in(\" + Enums.HoldClaimStatus.UnHolded.getHoldClaimStatus() +\")\";\n\t\t}\n\t\t\n\t\tif(claimCriteria.getsOrderByFields() != null) {\n\t\t\tsQry = sQry + \" order by mc.DOS desc\";\n\t\t}\n\t\t\n\t\tQuery HQRY = session.createQuery(sQry);\n\t\tHQRY.setFirstResult(iOffset);\n\t\tHQRY.setMaxResults(iCount);\n\t\treturn HQRY.list();\n\t}\n",
+      "file_path": "/path/to/HibernateClaimDao.java",
+      "line_number": 300,
+      "dependencies": [],
+      "logic_annotations": {
+        "complexity_score": 25,
+        "patterns": [
+          {
+            "type": "conditional_query_building",
+            "count": 56,
+            "complexity": "complex"
+          },
+          {
+            "type": "enum_comparisons",
+            "enums": [
+              "Claim_ClaimStatus.CLARIFICATIONOPENED",
+              "TimilyFilingLimit.Thirty",
+              "HoldClaimSearchCriteria.GeneralHoldExclude",
+              "HoldClaimStatus.UnHolded"
+            ]
+          },
+          {
+            "type": "helper_method_calls",
+            "helpers": [
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults",
+              "session.createQuery",
+              "HQRY.setFirstResult",
+              "HQRY.setMaxResults"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "service_impl_1",
+      "to": "facade_1"
+    },
+    {
+      "from": "facade_1",
+      "to": "dao_1"
+    }
+  ],
+  "metadata": {
+    "entities": {
+      "MediumClaim": {
+        "table_name": "CLAIM",
+        "fields": {
+          "Cl_ID": {
+            "column": "CLAIM_ID"
+          }
+        }
+      }
+    },
+    "enums": {
+      "Claim_ClaimStatus": {
+        "CLARIFICATIONOPENED": 12
+      }
+    },
+    "helper_methods": {
+      "getClaims": {
+        "name": "getClaims",
+        "signature": "GetClaimsOutPut getClaims(...)",
+        "source_code": "public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }"
+      },
+      "getCoutMediumClaimByClaimCriteriaNew": {
+        "name": "getCoutMediumClaimByClaimCriteriaNew",
+        "signature": "int getCoutMediumClaimByClaimCriteriaNew(...)",
+        "source_code": "\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n"
+      }
+    },
+    "conversion_hints": {
+      "database": {
+        "dialect": "mysql"
+      }
+    }
+  }
+}

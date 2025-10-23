@@ -1,0 +1,157 @@
+{
+  "api_name": "getClaims",
+  "service_name": "ClaimService",
+  "entry_point": "com.iris.allofactor.services.impl.ClaimServiceImpl.getClaims",
+  "nodes": [
+    {
+      "id": "service_impl_1",
+      "name": "getClaims",
+      "class_name": "ClaimServiceImpl",
+      "node_type": "service_impl",
+      "signature": {
+        "name": "getClaims",
+        "return_type": "GetClaimsOutPut"
+      },
+      "file_path": "/path/to/ClaimServiceImpl.java",
+      "line_number": 100,
+      "dependencies": [
+        "facade_1",
+        "helper_1"
+      ],
+      "source_code": "\tpublic GetClaimsOutPut getClaims(UserSession userSession) {\n\t\treturn helper.populate(dao.get());\n\t}",
+      "logic_annotations": {
+        "complexity_score": 3,
+        "patterns": [
+          {
+            "type": "helper_method_calls",
+            "count": 3,
+            "llm_hint": "Check metadata.helper_methods for implementations"
+          }
+        ]
+      }
+    },
+    {
+      "id": "facade_1",
+      "name": "getMediumClaimBO",
+      "class_name": "DaoFacadeImpl",
+      "node_type": "facade",
+      "signature": {
+        "name": "getMediumClaimBO",
+        "return_type": "MediumClaimBO"
+      },
+      "file_path": "/path/to/DaoFacadeImpl.java",
+      "line_number": 200,
+      "dependencies": [
+        "dao_1"
+      ],
+      "source_code": "// Delegates to: getMediumClaimBO\n// See dependencies for implementation"
+    },
+    {
+      "id": "dao_1",
+      "name": "getMediumClaimByClaimCriteriaNew",
+      "class_name": "HibernateClaimDao",
+      "node_type": "dao",
+      "signature": {
+        "name": "getMediumClaimByClaimCriteriaNew",
+        "return_type": "MediumClaim[]"
+      },
+      "file_path": "/path/to/HibernateClaimDao.java",
+      "line_number": 300,
+      "dependencies": [],
+      "query_logic": {
+        "type": "dynamic_hql_query",
+        "base_query": "SELECT mc FROM MediumClaim mc, VisitDetails vd WHERE mc.C_ID = :clinicId",
+        "conditional_joins": [
+          "IF btStatusGroup == CLARIFICATIONOPENED: JOIN Task T, ClinicMaster cm"
+        ],
+        "where_conditions": [
+          "40+ dynamic WHERE conditions based on ClaimCriteria fields",
+          "IF getiPatient_Id != 0: mc.P_ID = :patientId",
+          "IF getiProvider_Id != 0: vd.iPhysicianId = :providerId",
+          "IF getBtStatusGroup: Complex status filtering with blReviewed logic",
+          "IF getBtTimelyFilingLimit: CASE statement for filing limit calculations",
+          "IF getBtClaimHold: Multiple hold status filtering options"
+        ],
+        "order_by": "Dynamic based on sOrderByFields parameter or default mc.DOS desc",
+        "pagination": "setFirstResult(iOffset), setMaxResults(iCount)"
+      },
+      "source_code": "\n// Complex dynamic HQL query builder\n// - 60+ conditional branches\n// - 30+ enum comparisons\n// - Dynamic JOIN, WHERE, ORDER BY clauses\n// - Pagination support\n// See query_logic field for structured representation\n",
+      "logic_annotations": {
+        "complexity_score": 25,
+        "patterns": [
+          {
+            "type": "conditional_query_building",
+            "complexity": "complex",
+            "condition_count": 56,
+            "llm_hint": "Build query incrementally using list of WHERE clauses"
+          },
+          {
+            "type": "enum_comparisons",
+            "enum_groups": {
+              "claim_status": [
+                "Claim_ClaimStatus.CLARIFICATIONOPENED",
+                "HoldClaimStatus.UnHolded"
+              ],
+              "hold_status": [
+                "HoldClaimSearchCriteria.GeneralHoldExclude"
+              ],
+              "filing_limits": [
+                "TimilyFilingLimit.Thirty"
+              ]
+            },
+            "llm_hint": "Look up enum values in metadata.enums"
+          },
+          {
+            "type": "helper_method_calls",
+            "count": 150,
+            "llm_hint": "Check metadata.helper_methods for implementations"
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "service_impl_1",
+      "to": "facade_1"
+    },
+    {
+      "from": "facade_1",
+      "to": "dao_1"
+    }
+  ],
+  "metadata": {
+    "entities": {
+      "MediumClaim": {
+        "table_name": "CLAIM",
+        "fields": {
+          "Cl_ID": {
+            "column": "CLAIM_ID"
+          }
+        }
+      }
+    },
+    "enums": {
+      "Claim_ClaimStatus": {
+        "CLARIFICATIONOPENED": 12
+      }
+    },
+    "helper_methods": {
+      "getClaims": {
+        "name": "getClaims",
+        "signature": "GetClaimsOutPut getClaims(...)",
+        "source_code": "public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }public GetClaimsOutPut getClaims() { ... }"
+      },
+      "getCoutMediumClaimByClaimCriteriaNew": {
+        "name": "getCoutMediumClaimByClaimCriteriaNew",
+        "signature": "int getCoutMediumClaimByClaimCriteriaNew(...)",
+        "source_code": "\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n\n\tpublic int getCoutMediumClaimByClaimCriteriaNew(ClaimCriteria claimCriteria, int iClinicID) {\n\t\tString sQry = \"select count(*) from MediumClaim mc where mc.C_ID = \"+iClinicID;\n\t\tif(claimCriteria.getiPatient_Id() != 0) {\n\t\t\tsQry = sQry + \" and mc.P_ID = \"+claimCriteria.getiPatient_Id();\n\t\t}\n\t\treturn getHibernateTemplate().find(sQry).get(0);\n\t}\n"
+      }
+    },
+    "conversion_hints": {
+      "database": {
+        "dialect": "mysql"
+      }
+    }
+  }
+}

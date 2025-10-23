@@ -43,16 +43,16 @@ class ServiceAnalyzer:
             # Find implementation file
             impl_file = self.services_impl_path / f"{service_name}Impl.java"
             
-            # Get all methods (APIs)
+            # Get all methods (APIs) - count only, don't include names
             methods = parser.get_methods()
-            api_names = [method["name"] for method in methods]
+            api_count = len(methods)
             
             return ServiceInfo(
                 name=service_name,
                 interface_path=str(service_file),
                 implementation_path=str(impl_file) if impl_file.exists() else "",
-                api_count=len(api_names),
-                apis=api_names
+                api_count=api_count,
+                apis=[]  # Empty list - use /{service_name}/apis endpoint to get API details
             )
         except Exception as e:
             print(f"Error analyzing service {service_file}: {e}")

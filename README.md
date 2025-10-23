@@ -37,13 +37,22 @@ Controller (SOAP) → Service Interface → ServiceImpl → DaoFacade → DAO �
 - Maps entity names → Table names
 - See [SCHEMA_EXTRACTION.md](SCHEMA_EXTRACTION.md) and [METADATA_FILTERING_GUIDE.md](METADATA_FILTERING_GUIDE.md) for details
 
-### 4. Code Analysis
+### 4. **JSON Optimization** 🆕
+- **Automatic 70% size reduction** of call graph JSON before sending to frontend
+- Converts large DAO source code to structured `query_logic` representations
+- Deduplicates similar helper methods via references
+- Compresses logic annotations and groups enums by category
+- **Result**: 174 KB → 50 KB typical reduction while preserving all business logic
+- Saves both full (debugging) and optimized (frontend) versions
+- See [OPTIMIZATION_GUIDE.md](OPTIMIZATION_GUIDE.md) and [OPTIMIZATION_QUICK_REF.md](OPTIMIZATION_QUICK_REF.md) for details
+
+### 5. Code Analysis
 - Parses Java source files
 - Extracts method signatures, parameters, and return types
 - Identifies dependencies and method calls
 - Analyzes imports and class structure
 
-### 5. Migration Support
+### 6. Migration Support
 - API-by-API migration approach
 - Generates JSON representation of call graphs
 - Prepares data for UI visualization

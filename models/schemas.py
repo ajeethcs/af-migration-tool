@@ -64,7 +64,7 @@ class ServiceInfo(BaseModel):
     interface_path: str
     implementation_path: str
     api_count: int
-    apis: List[str] = []
+    # apis: List[str] = []
 
 class ServiceListResponse(BaseModel):
     """Response for service listing"""
