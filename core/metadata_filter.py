@@ -64,11 +64,13 @@ class MetadataFilter:
             if enum_name in all_enums:
                 filtered['enums'][enum_name] = all_enums[enum_name]
         
-        # Copy helper methods and conversion hints (always relevant)
+        # Copy helper methods, conversion hints, and DTOs (always relevant)
         if 'helper_methods' in full_metadata:
             filtered['helper_methods'] = full_metadata['helper_methods']
         if 'conversion_hints' in full_metadata:
             filtered['conversion_hints'] = full_metadata['conversion_hints']
+        if 'dtos' in full_metadata:
+            filtered['dtos'] = full_metadata['dtos']
         
         # Print statistics
         total_entities = len(all_entities)
@@ -79,6 +81,7 @@ class MetadataFilter:
         print(f"\n📊 Filtering Results:")
         print(f"  Entities: {used_entities}/{total_entities} ({self._percentage(used_entities, total_entities)}%)")
         print(f"  Enums: {used_enums}/{total_enums} ({self._percentage(used_enums, total_enums)}%)")
+        print(f"  DTOs: {len(filtered.get('dtos', {}))} (all preserved)")
         
         if used_entities < total_entities:
             print(f"\n✓ Reduced metadata size by ~{100 - self._percentage(used_entities + used_enums, total_entities + total_enums)}%")
