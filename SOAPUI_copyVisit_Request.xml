@@ -1,0 +1,45 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soap="http://soap.services.allofactor.iris.com">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <soap:copyVisit>
+         <!--Required: Session ID from login-->
+         <sessionId>YOUR_SESSION_ID_HERE</sessionId>
+         
+         <!--Required: CopyVisitParams object-->
+         <copyVisitParams>
+            <!--Required: Source Visit ID to copy from-->
+            <iSourceVisitId>12345</iSourceVisitId>
+            
+            <!--Required: Destination Visit ID to copy to-->
+            <iDesVisitId>67890</iDesVisitId>
+            
+            <!--Required: Source Claim ID-->
+            <iSourceClaimId>11111</iSourceClaimId>
+            
+            <!--Required: Destination Claim ID-->
+            <iDesClaimId>22222</iDesClaimId>
+            
+            <!--Optional: Copy diagnosis and procedures (true/false)-->
+            <blCopyVisitDiagnosisAndProcedures>true</blCopyVisitDiagnosisAndProcedures>
+            
+            <!--Optional: Copy providers and facility (true/false)-->
+            <blCopyProvidersAndFacility>true</blCopyProvidersAndFacility>
+            
+            <!--Optional: Copy miscellaneous data (true/false)-->
+            <blCopyMiscellaneous>true</blCopyMiscellaneous>
+            
+            <!--Optional: Copy CMS override data (true/false)-->
+            <blCmsOverride>true</blCmsOverride>
+            
+            <!--Optional: Copy visit insurance (true/false)-->
+            <blVisitInsurance>true</blVisitInsurance>
+            
+            <!--Optional: User ID (usually set by session)-->
+            <iUserId>100</iUserId>
+            
+            <!--Optional: Patient ID-->
+            <iPatientId>500</iPatientId>
+         </copyVisitParams>
+      </soap:copyVisit>
+   </soapenv:Body>
+</soapenv:Envelope>

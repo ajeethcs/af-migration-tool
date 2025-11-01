@@ -45,3 +45,11 @@ DEFAULT_LLM_MODEL = os.getenv("DEFAULT_LLM_MODEL", "gpt-4")
 # Migration settings
 MAX_METHOD_SIZE = 500  # Maximum lines per method for analysis
 BATCH_SIZE = 10  # Number of methods to process in parallel
+
+# Call Graph Settings - COMPLETE TRACING MODE
+CALL_GRAPH_MAX_DEPTH = None  # None = unlimited depth, trace everything
+CALL_GRAPH_MAX_NODES = None  # None = unlimited nodes, capture all methods
+CALL_GRAPH_TRACE_INTERNAL = True  # Trace internal/private methods
+CALL_GRAPH_TRACE_CONDITIONALS = True  # Trace all conditional branches
+CALL_GRAPH_INCLUDE_ALL_LOGIC = True  # Include ALL business logic
+CALL_GRAPH_PRESERVE_OUTPUT_STRUCTURE = True  # Preserve exact output structure

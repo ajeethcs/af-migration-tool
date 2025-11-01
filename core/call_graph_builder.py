@@ -9,10 +9,13 @@ import os
 
 from config import (
     SERVICES_IMPL_PATH, FACADE_PATH, DAO_PATH,
-    ALLOFACTOR_SRC, ALLOFACTORSERVICE_SRC
+    ALLOFACTOR_SRC, ALLOFACTORSERVICE_SRC,
+    CALL_GRAPH_MAX_DEPTH, CALL_GRAPH_MAX_NODES,
+    CALL_GRAPH_TRACE_INTERNAL, CALL_GRAPH_TRACE_CONDITIONALS
 )
 from core.java_parser import JavaParser
 from core.schema_extractor import extract_metadata
+from core.dto_extractor import extract_dto_definitions
 from models.schemas import (
     CallGraph, MethodNode, CallEdge, NodeType,
     MethodSignature, MethodParameter
@@ -83,6 +86,14 @@ class CallGraphBuilder:
                 metadata.update(schema_metadata)
             except Exception as e:
                 print(f"Warning: Could not extract schema metadata: {e}")
+            
+            # Extract DTO/POJO class definitions
+            try:
+                dto_metadata = self._extract_dto_metadata()
+                if dto_metadata:
+                    metadata['dtos'] = dto_metadata
+            except Exception as e:
+                print(f"Warning: Could not extract DTO metadata: {e}")
         
         # Create the call graph
         call_graph = CallGraph(
@@ -110,6 +121,33 @@ class CallGraphBuilder:
         )
         
         return metadata
+    
+    def _extract_dto_metadata(self) -> Dict:
+        """Extract DTO/POJO class definitions used in the call graph"""
+        # Collect all type names from method signatures
+        type_names = set()
+        
+        for node in self.nodes:
+            # Add return type
+            return_type = node.signature.return_type
+            if return_type and return_type != "void":
+                type_names.add(return_type)
+            
+            # Add parameter types
+            for param in node.signature.parameters:
+                if param.type:
+                    type_names.add(param.type)
+        
+        # Extract DTO definitions for these types
+        if type_names:
+            print(f"Extracting DTO definitions for {len(type_names)} types: {', '.join(sorted(type_names))}")
+            dto_definitions = extract_dto_definitions(
+                java_source_paths=[ALLOFACTOR_SRC, ALLOFACTORSERVICE_SRC],
+                type_names=type_names
+            )
+            return dto_definitions
+        
+        return {}
     
     def _create_node(
         self,
@@ -191,7 +229,7 @@ class CallGraphBuilder:
                             break
     
     def _extract_method_calls(self, source_code: str) -> List[Dict]:
-        """Extract method calls from source code"""
+        """Extract method calls from source code - COMPLETE MODE"""
         method_calls = []
         
         # Debug: Check if we should print debug info
@@ -220,13 +258,15 @@ class CallGraphBuilder:
                 print(f"  [DEBUG] Found DAO field call: this.{match.group(1)}.{match.group(2)}()")
         
         # Pattern for direct DAO calls (e.g., claimDao.method())
-        dao_direct_pattern = r'(?<!this\.)\b(\w+Dao)\.(\w+)\s*\('
+        dao_direct_pattern = r'(?<!this\.)(?<!\.)\b(\w+Dao)\.(\w+)\s*\('
         for match in re.finditer(dao_direct_pattern, source_code):
             method_calls.append({
                 "object": match.group(1),
                 "method": match.group(2),
                 "type": "dao_direct"
             })
+            if debug:
+                print(f"  [DEBUG] Found DAO direct call: {match.group(1)}.{match.group(2)}()")
         
         # Pattern for helper calls
         helper_pattern = r'(\w+Helper)\.(\w+)\s*\('
@@ -236,17 +276,46 @@ class CallGraphBuilder:
                 "method": match.group(2),
                 "type": "helper"
             })
+            if debug:
+                print(f"  [DEBUG] Found helper call: {match.group(1)}.{match.group(2)}()")
         
-        # Pattern for this.method() calls
+        # Pattern for this.method() calls (internal methods)
+        # This is CRITICAL for tracing getCopyClaimInfoBO, storeOrUpdateCopyClaimInfoBO, etc.
         this_pattern = r'this\.(\w+)\s*\('
         for match in re.finditer(this_pattern, source_code):
+            method_name = match.group(1)
             # Skip if it's a DAO field call (already captured above)
-            if not match.group(1).endswith('Dao'):
+            if not method_name.endswith('Dao'):
                 method_calls.append({
                     "object": "this",
-                    "method": match.group(1),
+                    "method": method_name,
                     "type": "internal"
                 })
+                if debug:
+                    print(f"  [DEBUG] Found internal call: this.{method_name}()")
+        
+        # Pattern for direct method calls without 'this.' (same class)
+        # e.g., getCopyClaimInfoBO(...) without this prefix
+        direct_method_pattern = r'(?<!\.)\b([a-z]\w+)\s*\('
+        for match in re.finditer(direct_method_pattern, source_code):
+            method_name = match.group(1)
+            # Filter out Java keywords, common methods, and already captured patterns
+            java_keywords = {'if', 'for', 'while', 'switch', 'return', 'new', 'throw', 'catch', 'try', 'finally'}
+            common_methods = {'get', 'set', 'is', 'has', 'add', 'remove', 'put', 'size', 'length', 'equals', 'toString', 'valueOf', 'println', 'print', 'format'}
+            
+            if (method_name not in java_keywords and 
+                method_name not in common_methods and
+                not method_name.endswith('Dao') and
+                not method_name.endswith('Helper')):
+                # Only add if not already captured
+                if not any(call['method'] == method_name for call in method_calls):
+                    method_calls.append({
+                        "object": "this",
+                        "method": method_name,
+                        "type": "internal"
+                    })
+                    if debug:
+                        print(f"  [DEBUG] Found direct method call: {method_name}()")
         
         return method_calls
     
@@ -468,8 +537,14 @@ class CallGraphBuilder:
             parser.get_fully_qualified_name()
         )
         
-        # Recursively trace this method's calls (limit depth to avoid infinite recursion)
-        if len(self.visited_methods) < 100:  # Depth limit
+        # Recursively trace this method's calls
+        # Check if we should continue tracing based on config
+        should_continue = True
+        
+        if CALL_GRAPH_MAX_NODES is not None:
+            should_continue = len(self.visited_methods) < CALL_GRAPH_MAX_NODES
+        
+        if should_continue:
             self._trace_method_calls(method_info, node_id, parser)
         
         return node_id
